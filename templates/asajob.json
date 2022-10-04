@@ -1,0 +1,49 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "type": "string"
+      },
+      "jobName": {
+        "type": "string"
+      },
+      "cluster_id": {
+        "type": "string"
+      }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "name": "[parameters('jobName')]",
+            "type": "Microsoft.StreamAnalytics/streamingjobs",
+            "apiVersion": "2017-04-01-preview",
+            "tags": {},
+            "location": "[parameters('location')]",
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                "jobType": "Cloud",
+                "eventsOutOfOrderPolicy": "Adjust",
+                "outputErrorPolicy": "Drop",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "eventsLateArrivalMaxDelayInSeconds": -1,
+                "compatibilityLevel": "1.0",
+                "transformation": {
+                    "name": "[parameters('jobName')]",
+                    "properties": {
+                        "streamingUnits": 36,
+                        "query": "SELECT * INTO [YourOutputAlias] FROM [YourInputAlias]"
+                    }
+                },
+                "cluster": {
+                    "id": "[parameters('cluster_id')]"
+                }
+            }
+        }
+    ],
+    "outputs": {}
+  }
+   

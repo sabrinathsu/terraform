@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "clusterName": {
+      "type": "string"
+    },
+    "iothub_id": {
+      "type": "string"
+    },
+    "cosmosdb_id":{
+      "type": "string"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "name": "[parameters('clusterName')]",
+      "type": "Microsoft.StreamAnalytics/clusters",
+      "apiVersion": "2020-03-01-preview",
+      "tags": {},
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Default",
+        "capacity": 36
+      },
+      "properties": {  
+      }
+    },       
+    {
+            "type": "Microsoft.StreamAnalytics/clusters/privateEndpoints",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[concat(parameters('clusterName'), '/iotasape')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/clusters', parameters('clusterName'))]"
+            ],
+            "properties": {
+                "manualPrivateLinkServiceConnections": [
+                    {
+                        "properties": {
+                            "privateLinkServiceConnectionState": {},
+                            "privateLinkServiceId": "[parameters('iothub_id')]",
+                            "groupIds": [
+                                "iotHub"
+                            ],
+                            "requestMessage": "This request originated from a Stream Analytics cluster"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.StreamAnalytics/clusters/privateEndpoints",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[concat(parameters('clusterName'), '/cosmosasape')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.StreamAnalytics/clusters', parameters('clusterName'))]"
+            ],
+            "properties": {
+                "manualPrivateLinkServiceConnections": [
+                    {
+                        "properties": {
+                            "privateLinkServiceConnectionState": {},
+                            "privateLinkServiceId": "[parameters('cosmosdb_id')]",
+                            "groupIds": [
+                                "Sql"
+                            ],
+                            "requestMessage": "This request originated from a Stream Analytics cluster"
+                        }
+                    }
+                ]
+            }
+        }
+  ],
+  "outputs": {}
+}
